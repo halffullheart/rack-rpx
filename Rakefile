@@ -1,16 +1,28 @@
 require 'rubygems'
 require 'rake'
-
+require 'rake'
+require 'rubygems'
+require 'rake/rdoctask'
+require 'spec/rake/spectask'
+ 
+puts "\nGem: rack-rpx\n\n"
+ 
+task :default => :spec
 begin
   require 'jeweler'
-  Jeweler::Tasks.new do |gem|
-    gem.name = "rack-rpx"
-    gem.summary = %Q{TODO: one-line summary of your gem}
-    gem.description = %Q{TODO: longer description of your gem}
-    gem.email = "pedro.delgallego@gmail.com"
-    gem.homepage = "http://github.com/pedrodelgallego/rack-rpx"
-    gem.authors = ["Pedro Del Gallego"]
-    gem.add_development_dependency "rspec", ">= 1.2.9"
+  Jeweler::Tasks.new do |s|
+    s.name        = 'rack-rpx'
+    s.summary     = 'Rack Middleware for RPX Now Authorization'
+    s.email       = 'pedro.delgallego@gmail.com'
+    s.homepage    = 'http://github.com/remi/rack-oauth'
+    s.description = 'Rack Middleware for OAuth Authorization'
+    s.authors     = ["Pedro Del Gallego"]
+    s.files       = FileList['[A-Z]*', '{lib,spec,bin,examples}/**/*']
+    %w(rack net/http net/https).each do |gem|
+        s.add_dependency gem
+    end    
+    s.add_development_dependency "rspec", ">= 1.2.9"
+    s.extra_rdoc_files = %w( README.rdoc ) 
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
@@ -37,9 +49,9 @@ task :default => :spec
 require 'rake/rdoctask'
 Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
-
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title = "rack-rpx #{version}"
+  rdoc.options << '--line-numbers' << '--inline-source'
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
-end
+end 
