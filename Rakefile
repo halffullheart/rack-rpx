@@ -18,9 +18,7 @@ begin
     s.description = 'Rack Middleware for RPX Authorization, this rack middleware will make even easier to interact with rpx now'
     s.authors     = ["Pedro Del Gallego"]
     s.files       = FileList['[A-Z]*', '{lib,spec,bin,examples}/**/*']
-    %w(rack net/http net/https).each do |gem|
-        s.add_dependency gem
-    end    
+    s.add_dependency 'rack'
     s.add_development_dependency "rspec", ">= 1.2.9"
     s.extra_rdoc_files = %w( README.rdoc ) 
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
