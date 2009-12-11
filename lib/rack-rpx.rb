@@ -1,4 +1,4 @@
-%w(net/http net/https rubygems rack).each { |gem| require gem }
+%w(rubygems net/http net/https rack json).each { |gem| require gem }
  
 module Rack #:nodoc:
   
@@ -7,47 +7,58 @@ module Rack #:nodoc:
   # Note: this *requires* that a Rack::Session middleware be enabled
   #
   class Rpx
+    OPTIONS = {
+        :login_path    => '/login',
+        :callback_path => '/callback',
+        :redirect_to   => '/completed',
+        :rack_session  => 'rack.session'
+    }
+     
+    def login_path
+      OPTIONS[:login_path]        
+    end
+ 
+    def callback_path        
+      OPTIONS[:callback_path]
+    end
  
     # Helper methods intended to be included in your Rails controller or 
     # in your Sinatra helpers block
     module Methods
       RPX_NOW_URL = 'https://rpxnow.com/api/v2/auth_info'
-      API_KEY     = '5b17163d199813f86e51fc3282ffc4298a40cc44'
-      
-      DEFAULT_OPTIONS = {
-        :login_path    => '/oauth_login',
-        :callback_path => '/oauth_callback',
-        :redirect_to   => '/oauth_complete',
-        :rack_session  => 'rack.session'
-      }
       
       # This is *the* method you want to call.
       #
       # After you're authorized and redirected back to your #redirect_to path, 
       # you should be able to call get_access_token to get and hold onto 
       # the access token for the user you've been authorized as.
-      #
+      # 
       # You can use the token to make GET/POST/etc requests
-      def get_access_token(token)
+      def get_credentials(token)
         u = URI.parse(RPX_NOW_URL)
         req = Net::HTTP::Post.new(u.path)
-        req.set_form_data({:token => token, :apiKey => API_KEY, :format => 'json', :extended => 'true'})
+        req.set_form_data({:token => token, :apiKey => OPTIONS[:api_key], :format => 'json', :extended => 'true'})
         http = Net::HTTP.new(u.host,u.port)
         http.use_ssl = true if u.scheme == 'https'
         json = JSON.parse(http.request(req).body)
         
         raise LoginFailedError, 'Cannot log in. Try another account!' unless json['stat'] == 'ok'
         json
-      end 
+      end
+
+    end
+
+    def initialize app, *args
+      @app = app     
+      arg_options = args.pop
+      @name   = args.first      
+      OPTIONS.merge! arg_options
     end
     
     def call env
-      # put this instance of Rack::OAuth in the env 
-      # so it's accessible from the application
-      env['rack.rpx'] ||= {}
-      env['rack.rpx'][name] = self
       @app.call(env)
-    end    
+    end
+    
   end
  
 end
