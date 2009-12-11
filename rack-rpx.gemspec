@@ -44,19 +44,13 @@ Gem::Specification.new do |s|
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<rack>, [">= 0"])
-      s.add_runtime_dependency(%q<net/http>, [">= 0"])
-      s.add_runtime_dependency(%q<net/https>, [">= 0"])
       s.add_development_dependency(%q<rspec>, [">= 1.2.9"])
     else
       s.add_dependency(%q<rack>, [">= 0"])
-      s.add_dependency(%q<net/http>, [">= 0"])
-      s.add_dependency(%q<net/https>, [">= 0"])
       s.add_dependency(%q<rspec>, [">= 1.2.9"])
     end
   else
     s.add_dependency(%q<rack>, [">= 0"])
-    s.add_dependency(%q<net/http>, [">= 0"])
-    s.add_dependency(%q<net/https>, [">= 0"])
     s.add_dependency(%q<rspec>, [">= 1.2.9"])
   end
 end
