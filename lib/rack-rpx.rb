@@ -8,10 +8,11 @@ module Rack #:nodoc:
   #
   class Rpx
     OPTIONS = {
-        :login_path    => '/login',
-        :callback_path => '/callback',
-        :redirect_to   => '/completed',
-        :rack_session  => 'rack.session'
+      :login_path    => '/login',
+      :callback_path => '/callback',
+      :redirect_to   => '/completed',
+      :callback_url  => 'localhost:9393',
+      :rack_session  => 'rack.session'
     }
      
     def login_path
@@ -25,7 +26,8 @@ module Rack #:nodoc:
     # Helper methods intended to be included in your Rails controller or 
     # in your Sinatra helpers block
     module Methods
-      RPX_NOW_URL = 'https://rpxnow.com/api/v2/auth_info'
+      RPX_API_URL = "rpxnow.com/api/v2/auth_info"
+      RPX_LOGIN_URL = "https://#{RPX_API_URL}"
       
       # This is *the* method you want to call.
       #
@@ -35,7 +37,7 @@ module Rack #:nodoc:
       # 
       # You can use the token to make GET/POST/etc requests
       def get_credentials(token)
-        u = URI.parse(RPX_NOW_URL)
+        u = URI.parse(RPX_LOGIN_URL)
         req = Net::HTTP::Post.new(u.path)
         req.set_form_data({:token => token, :apiKey => OPTIONS[:api_key], :format => 'json', :extended => 'true'})
         http = Net::HTTP.new(u.host,u.port)
@@ -45,7 +47,12 @@ module Rack #:nodoc:
         raise LoginFailedError, 'Cannot log in. Try another account!' unless json['stat'] == 'ok'
         json
       end
-
+      
+      
+      def callback_path
+       "http://#{OPTIONS[:callback_url]}#{OPTIONS[:callback_path]}"
+      end
+      
     end
 
     def initialize app, *args
@@ -57,8 +64,6 @@ module Rack #:nodoc:
     
     def call env
       @app.call(env)
-    end
-    
-  end
- 
+    end    
+  end 
 end
