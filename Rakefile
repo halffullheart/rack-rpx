@@ -15,7 +15,7 @@ begin
     s.summary     = 'Rack Middleware for RPX Now Authorization'
     s.email       = 'pedro.delgallego@gmail.com'
     s.homepage    = 'http://github.com/remi/rack-oauth'
-    s.description = 'Rack Middleware for OAuth Authorization'
+    s.description = 'Rack Middleware for RPX Authorization, this rack middleware will make even easier to interact with rpx now'
     s.authors     = ["Pedro Del Gallego"]
     s.files       = FileList['[A-Z]*', '{lib,spec,bin,examples}/**/*']
     %w(rack net/http net/https).each do |gem|
