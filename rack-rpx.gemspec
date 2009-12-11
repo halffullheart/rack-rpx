@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Pedro Del Gallego"]
   s.date = %q{2009-12-11}
-  s.description = %q{Rack Middleware for OAuth Authorization}
+  s.description = %q{Rack Middleware for RPX Authorization, this rack middleware will make even easier to interact with rpx now}
   s.email = %q{pedro.delgallego@gmail.com}
   s.extra_rdoc_files = [
     "README.rdoc"
