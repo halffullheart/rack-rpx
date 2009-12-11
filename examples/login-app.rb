@@ -6,9 +6,9 @@ require 'lib/rack-rpx'
 
 use Rack::Session::Cookie
  
-use Rack::Rpx, :site => 'http://twitter.com',
+use Rack::Rpx, :port => '9393',
                :api_key => '5b17163d199813f86e51fc3282ffc4298a40cc44',
-               :callback_path => 'login_completed'
+               :callback_path => '/login_completed'
  
 helpers do
   include Rack::Rpx::Methods

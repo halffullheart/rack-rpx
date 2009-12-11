@@ -1,5 +1,4 @@
 %w(rubygems net/http net/https rack json).each { |gem| require gem }
- 
 module Rack #:nodoc:
   
   # Rack Middleware for integrating RPX Now into your application
@@ -8,26 +7,17 @@ module Rack #:nodoc:
   #
   class Rpx
     OPTIONS = {
-      :login_path    => '/login',
-      :callback_path => '/callback',
-      :redirect_to   => '/completed',
-      :callback_url  => 'localhost:9393',
-      :rack_session  => 'rack.session'
+      :login_path      => '/login',
+      :callback_path   => '/login_completed',
+      :host            => 'localhost',
+      :port            => '80',
+      :rack_session    => 'rack.session'
     }
-     
-    def login_path
-      OPTIONS[:login_path]        
-    end
- 
-    def callback_path        
-      OPTIONS[:callback_path]
-    end
- 
+
     # Helper methods intended to be included in your Rails controller or 
     # in your Sinatra helpers block
     module Methods
-      RPX_API_URL = "rpxnow.com/api/v2/auth_info"
-      RPX_LOGIN_URL = "https://#{RPX_API_URL}"
+      RPX_LOGIN_URL = "https://rpxnow.com/api/v2/auth_info"
       
       # This is *the* method you want to call.
       #
@@ -47,23 +37,25 @@ module Rack #:nodoc:
         raise LoginFailedError, 'Cannot log in. Try another account!' unless json['stat'] == 'ok'
         json
       end
-      
-      
-      def callback_path
-       "http://#{OPTIONS[:callback_url]}#{OPTIONS[:callback_path]}"
+
+      def login_widget_url(app_name)
+        "https://#{app_name}.rpxnow.com/openid/v2/signin?token_url=#{callback_url}"
       end
       
+      
+      def callback_url
+        "http://#{OPTIONS[:host]}:#{OPTIONS[:port]}#{OPTIONS[:callback_path]}"
+      end
     end
 
     def initialize app, *args
       @app = app     
       arg_options = args.pop
-      @name   = args.first      
-      OPTIONS.merge! arg_options
+      OPTIONS.merge! arg_options      
     end
     
     def call env
-      @app.call(env)
+      @app.call(env)     
     end    
   end 
 end
