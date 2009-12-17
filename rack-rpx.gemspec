@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Pedro Del Gallego"]
-  s.date = %q{2009-12-11}
+  s.date = %q{2009-12-17}
   s.description = %q{Rack Middleware for RPX Authorization, this rack middleware will make even easier to interact with rpx now}
   s.email = %q{pedro.delgallego@gmail.com}
   s.extra_rdoc_files = [
@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
      "Rakefile",
      "VERSION",
      "examples/login-app.rb",
+     "examples/login-hooks-sapp.rb",
      "examples/views/login.haml",
      "lib/rack-rpx.rb",
      "spec/rack-rpx_spec.rb",
@@ -35,7 +36,10 @@ Gem::Specification.new do |s|
   s.test_files = [
     "spec/spec_helper.rb",
      "spec/rack-rpx_spec.rb",
-     "examples/login-app.rb"
+     "test/test_helper.rb",
+     "test/rack_rpx_test.rb",
+     "examples/login-app.rb",
+     "examples/login-hooks-sapp.rb"
   ]
 
   if s.respond_to? :specification_version then
