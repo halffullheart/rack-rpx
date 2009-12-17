@@ -6,19 +6,24 @@ module Rack #:nodoc:
   # Note: this *requires* that a Rack::Session middleware be enabled
   #
   class Rpx
+    RPX_LOGIN_URL = "https://rpxnow.com/api/v2/auth_info"
+    # Raised if an incompatible session is being used.
+    class NoSession        < RuntimeError; end
+    class LoginFailedError < RuntimeError; end
+    
     OPTIONS = {
-      :login_path      => '/login',
       :callback_path   => '/login_completed',
+      :logout_path     => '/logout', 
       :host            => 'localhost',
       :port            => '80',
-      :rack_session    => 'rack.session'
+      :rack_session    => 'rack.session',
+      :name            => 'default'
     }
-
+    
     # Helper methods intended to be included in your Rails controller or 
     # in your Sinatra helpers block
     module Methods
-      RPX_LOGIN_URL = "https://rpxnow.com/api/v2/auth_info"
-      
+
       # This is *the* method you want to call.
       #
       # After you're authorized and redirected back to your #redirect_to path, 
@@ -27,6 +32,20 @@ module Rack #:nodoc:
       # 
       # You can use the token to make GET/POST/etc requests
       def get_credentials(token)
+        Rack::Rpx.get_credentials(token)
+      end
+
+      def login_widget_url(app_name=nil)
+        "https://#{app_name}.rpxnow.com/openid/v2/signin?token_url=#{callback_url}"
+      end      
+      
+      def callback_url
+        "http://#{env['HTTP_HOST']}#{OPTIONS[:callback_path]}"
+      end
+    end
+
+    class << self
+      def credentials(token)
         u = URI.parse(RPX_LOGIN_URL)
         req = Net::HTTP::Post.new(u.path)
         req.set_form_data({:token => token, :apiKey => OPTIONS[:api_key], :format => 'json', :extended => 'true'})
@@ -37,25 +56,45 @@ module Rack #:nodoc:
         raise LoginFailedError, 'Cannot log in. Try another account!' unless json['stat'] == 'ok'
         json
       end
-
-      def login_widget_url(app_name)
-        "https://#{app_name}.rpxnow.com/openid/v2/signin?token_url=#{callback_url}"
-      end
-      
-      
-      def callback_url
-        "http://#{OPTIONS[:host]}:#{OPTIONS[:port]}#{OPTIONS[:callback_path]}"
-      end
-    end
-
-    def initialize app, *args
-      @app = app     
-      arg_options = args.pop
-      OPTIONS.merge! arg_options      
     end
     
-    def call env
+    def initialize app, *options
+      @app = app
+      OPTIONS.merge! options.pop
+      OPTIONS.each do |k,v|
+        Rack::Rpx.send(:define_method, k.to_s) {OPTIONS[k]}
+      end
+      
+    end
+    
+    def call env      
+      @req = Rack::Request.new env 
+      raise NoSession, 'No compatible session.' unless env['rack.session']
+      
+      if env['PATH_INFO'] ==  OPTIONS[:callback_path] &&  @req.post? then 
+        token = @req.params["token"]
+        set_credentials(env, token) if OPTIONS[:set_credentials] 
+        login(env)
+      elsif env['PATH_INFO'] == OPTIONS[:logout_path] then
+        logout(env)
+      end        
       @app.call(env)     
-    end    
+    end
+
+    def set_credentials(env, token)
+      env['rack.session']['credentials'] = self.get_credentials(token)
+    end
+
+    # This is the method that you should override if you want to
+    # perform any operation just after the response from rpx now
+    # 
+    # You can use the token to make GET/POST/etc requests
+    def login(env);  end
+
+
+    # This is the method that you should override if you want to
+    # perform any operation just before you reach the logout_path
+    def logout(env); end
+    
   end 
 end
