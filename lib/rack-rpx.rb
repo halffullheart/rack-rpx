@@ -53,7 +53,7 @@ module Rack #:nodoc:
         http.use_ssl = true if u.scheme == 'https'
         json = JSON.parse(http.request(req).body)
         
-        raise LoginFailedError, 'Cannot log in. Try another account!' unless json['stat'] == 'ok'
+        raise LoginFailedError, 'Cannot log in. Try another account! #{json.inspect}' unless json['stat'] == 'ok'
         json
       end
     end
@@ -63,8 +63,7 @@ module Rack #:nodoc:
       OPTIONS.merge! options.pop
       OPTIONS.each do |k,v|
         Rack::Rpx.send(:define_method, k.to_s) {OPTIONS[k]}
-      end
-      
+      end      
     end
     
     def call env      
