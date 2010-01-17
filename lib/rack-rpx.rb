@@ -45,7 +45,7 @@ module Rack #:nodoc:
     end
 
     class << self
-      def credentials(token)
+      def get_credentials(token)
         u = URI.parse(RPX_LOGIN_URL)
         req = Net::HTTP::Post.new(u.path)
         req.set_form_data({:token => token, :apiKey => OPTIONS[:api_key], :format => 'json', :extended => 'true'})
@@ -53,7 +53,7 @@ module Rack #:nodoc:
         http.use_ssl = true if u.scheme == 'https'
         json = JSON.parse(http.request(req).body)
         
-        raise LoginFailedError, 'Cannot log in. Try another account! #{json.inspect}' unless json['stat'] == 'ok'
+        raise LoginFailedError, "Cannot log in. Try another account! #{json.inspect}" unless json['stat'] == 'ok'
         json
       end
     end
